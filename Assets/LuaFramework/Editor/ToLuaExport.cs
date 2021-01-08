@@ -3805,119 +3805,6 @@ public static class ToLuaExport
         sb.AppendLineEx("\t}");    
     }
 
-    static string CreateDelegate = @"    
-    public static Delegate CreateDelegate(Type t, LuaFunction func = null)
-    {
-        DelegateCreate Create = null;
-
-        if (!dict.TryGetValue(t, out Create))
-        {
-            throw new LuaException(string.Format(""Delegate {0} not register"", LuaMisc.GetTypeName(t)));            
-        }
-
-        if (func != null)
-        {
-            LuaState state = func.GetLuaState();
-            LuaDelegate target = state.GetLuaDelegate(func);
-            
-            if (target != null)
-            {
-                return Delegate.CreateDelegate(t, target, target.method);
-            }  
-            else
-            {
-                Delegate d = Create(func, null, false);
-                target = d.Target as LuaDelegate;
-                state.AddLuaDelegate(target, func);
-                return d;
-            }       
-        }
-
-        return Create(null, null, false);        
-    }
-    
-    public static Delegate CreateDelegate(Type t, LuaFunction func, LuaTable self)
-    {
-        DelegateCreate Create = null;
-
-        if (!dict.TryGetValue(t, out Create))
-        {
-            throw new LuaException(string.Format(""Delegate {0} not register"", LuaMisc.GetTypeName(t)));
-        }
-
-        if (func != null)
-        {
-            LuaState state = func.GetLuaState();
-            LuaDelegate target = state.GetLuaDelegate(func, self);
-
-            if (target != null)
-            {
-                return Delegate.CreateDelegate(t, target, target.method);
-            }
-            else
-            {
-                Delegate d = Create(func, self, true);
-                target = d.Target as LuaDelegate;
-                state.AddLuaDelegate(target, func, self);
-                return d;
-            }
-        }
-
-        return Create(null, null, true);
-    }
-";
-
-    static string RemoveDelegate = @"    
-    public static Delegate RemoveDelegate(Delegate obj, LuaFunction func)
-    {
-        LuaState state = func.GetLuaState();
-        Delegate[] ds = obj.GetInvocationList();
-
-        for (int i = 0; i < ds.Length; i++)
-        {
-            LuaDelegate ld = ds[i].Target as LuaDelegate;
-
-            if (ld != null && ld.func == func)
-            {
-                obj = Delegate.Remove(obj, ds[i]);
-                state.DelayDispose(ld.func);
-                break;
-            }
-        }
-
-        return obj;
-    }
-    
-    public static Delegate RemoveDelegate(Delegate obj, Delegate dg)
-    {
-        LuaDelegate remove = dg.Target as LuaDelegate;
-
-        if (remove == null)
-        {
-            obj = Delegate.Remove(obj, dg);
-            return obj;
-        }
-
-        LuaState state = remove.func.GetLuaState();
-        Delegate[] ds = obj.GetInvocationList();        
-
-        for (int i = 0; i < ds.Length; i++)
-        {
-            LuaDelegate ld = ds[i].Target as LuaDelegate;
-
-            if (ld != null && ld == remove)
-            {
-                obj = Delegate.Remove(obj, ds[i]);
-                state.DelayDispose(ld.func);
-                state.DelayDispose(ld.self);
-                break;
-            }
-        }
-
-        return obj;
-    }
-";
-
     static string GetDelegateParams(MethodInfo mi)
     {
         ParameterInfo[] infos = mi.GetParameters();
@@ -4028,8 +3915,6 @@ public static class ToLuaExport
 
         sb.Append("public class DelegateFactory\r\n");
         sb.Append("{\r\n");        
-        sb.Append("\tpublic delegate Delegate DelegateCreate(LuaFunction func, LuaTable self, bool flag);\r\n");
-        sb.Append("\tpublic static Dictionary<Type, DelegateCreate> dict = new Dictionary<Type, DelegateCreate>();\r\n");
         sb.Append("\tstatic DelegateFactory factory = new DelegateFactory();\r\n");
         sb.AppendLineEx();
         sb.Append("\tpublic static void Init()\r\n");
@@ -4039,6 +3924,8 @@ public static class ToLuaExport
         
         sb.Append("\tpublic static void Register()\r\n");
         sb.Append("\t{\r\n");
+        sb.Append("\t\tvar dict = LuaDelegateFactory.dict;");
+        sb.AppendLineEx();
         sb.Append("\t\tdict.Clear();\r\n");
 
         for (int i = 0; i < list.Length; i++)
@@ -4076,8 +3963,7 @@ public static class ToLuaExport
         }
 
         sb.Append("\t}\r\n");
-        sb.Append(CreateDelegate);
-        sb.AppendLineEx(RemoveDelegate);
+        sb.AppendLineEx();
 
         for (int i = 0; i < list.Length; i++)
         {

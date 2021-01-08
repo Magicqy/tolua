@@ -51,7 +51,7 @@ namespace LuaInterface
                 {
                     if (typeof(System.MulticastDelegate).IsAssignableFrom(field.FieldType))
                     {
-                        o = DelegateFactory.CreateDelegate(field.FieldType, null);
+                        o = LuaDelegateFactory.CreateDelegate(field.FieldType, null);
                         ToLua.Push(L, (Delegate)o);
                     }
                     else

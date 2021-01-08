@@ -2891,7 +2891,7 @@ namespace LuaInterface
                     return null;
                 case LuaTypes.LUA_TFUNCTION:
                     LuaFunction func = ToLua.ToLuaFunction(L, stackPos);
-                    return DelegateFactory.CreateDelegate(t, func);
+                    return LuaDelegateFactory.CreateDelegate(t, func);
                 case LuaTypes.LUA_TUSERDATA:
                     return (Delegate)ToLua.CheckObject(L, stackPos, t);
                 default:

@@ -314,7 +314,7 @@ public class System_DelegateWrap
             else
             {
                 Delegate arg1 = (Delegate)ToLua.CheckObject<Delegate>(L, 2);
-                arg0 = DelegateFactory.RemoveDelegate(arg0, arg1);                
+                arg0 = LuaDelegateFactory.RemoveDelegate(arg0, arg1);                
                 ToLua.Push(L, arg0);
                 return 1;
             }
@@ -338,7 +338,7 @@ public class System_DelegateWrap
                     Delegate arg0 = ToLua.ToObject(L, 2) as Delegate;
                     LuaFunction func = ToLua.ToLuaFunction(L, 1);
                     Type t = arg0.GetType();
-                    Delegate arg1 = DelegateFactory.CreateDelegate(t, func);
+                    Delegate arg1 = LuaDelegateFactory.CreateDelegate(t, func);
                     Delegate arg2 = Delegate.Combine(arg0, arg1);
                     ToLua.Push(L, arg2);
                     return 1;

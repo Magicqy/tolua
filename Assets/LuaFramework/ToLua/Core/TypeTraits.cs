@@ -164,9 +164,9 @@ namespace LuaInterface
 
     public static class DelegateTraits<T>
     {        
-        static DelegateFactory.DelegateCreate _Create = null;        
+        static LuaDelegateFactory.DelegateCreate _Create = null;        
 
-        static public void Init(DelegateFactory.DelegateCreate func)
+        static public void Init(LuaDelegateFactory.DelegateCreate func)
         {
             _Create = func;            
         }
