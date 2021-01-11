@@ -1152,19 +1152,22 @@ namespace LuaInterface
         public static extern bool tolua_isvptrtable(IntPtr L, int index);
 
         public static int toluaL_exception(IntPtr L, Exception e)
-        {            
-            LuaException.luaStack = new LuaException(e.Message, e, 2);            
-            return tolua_error(L, e.Message);
+        {
+            var msg = e.ToString();
+            //由于已经将异常对象的调用栈信息传入Lua错误处理函数中，这里就不需要再保留异常对象了
+            //LuaException.luaStack = new LuaException(msg, e, 2);
+            return tolua_error(L, msg);
         }
 
         public static int toluaL_exception(IntPtr L, Exception e, object o, string msg)
         {
             if (o != null && !o.Equals(null))
             {
-                msg = e.Message;
+                msg = e.ToString();
             }
-            
-            LuaException.luaStack = new LuaException(msg, e, 2);
+
+            //由于已经将异常对象的调用栈信息传入Lua错误处理函数中，这里就不需要再保留异常对象了
+            //LuaException.luaStack = new LuaException(msg, e, 2);
             return tolua_error(L, msg);
         }
 
