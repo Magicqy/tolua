@@ -44,7 +44,7 @@ namespace LuaInterface
         static public LuaTableToVar[] ToVarMap = new LuaTableToVar[LuaValueType.Max];        
         static public Dictionary<Type, LuaPushVarObject> VarPushMap  = new Dictionary<Type, LuaPushVarObject>();
 
-#if UNITY_EDITOR
+#if USE_LOG_REDIRECT && UNITY_EDITOR
         static int _instanceID = -1;
         static int _line = 203;
         private static object consoleWindow;
@@ -112,7 +112,7 @@ namespace LuaInterface
             LuaDLL.tolua_pushudata(L, 1);
             LuaDLL.lua_setfield(L, LuaIndexes.LUA_GLOBALSINDEX, "null");
 
-#if UNITY_EDITOR
+#if USE_LOG_REDIRECT && UNITY_EDITOR
             GetToLuaInstanceID();
             GetConsoleWindowListView();
 #endif
@@ -443,7 +443,7 @@ namespace LuaInterface
             return 1;
         }
 
-#if UNITY_EDITOR
+#if USE_LOG_REDIRECT && UNITY_EDITOR
         private static bool GetConsoleWindowListView()
         {
             if (logListView == null)
@@ -470,7 +470,7 @@ namespace LuaInterface
                 Type logEntriesType = unityEditorAssembly.GetType("UnityEditorInternal.LogEntries");                
                 LogEntriesGetEntry = logEntriesType.GetMethod("GetEntryInternal", BindingFlags.Static | BindingFlags.Public);
                 Type logEntryType = unityEditorAssembly.GetType("UnityEditorInternal.LogEntry");                
-#endif                                
+#endif
                 logEntryCondition = logEntryType.GetField("condition", BindingFlags.Instance | BindingFlags.Public);
                 StartGettingEntries = logEntriesType.GetMethod("StartGettingEntries", BindingFlags.Static | BindingFlags.Public);
                 EndGettingEntries = logEntriesType.GetMethod("EndGettingEntries", BindingFlags.Static | BindingFlags.Public);
@@ -600,10 +600,10 @@ namespace LuaInterface
             return false;
         }
 #endif
-#endregion
-                            /*-------------------------------------------------------------------------------------------*/
+        #endregion
+        /*-------------------------------------------------------------------------------------------*/
 
-                            public static string ToString(IntPtr L, int stackPos)
+        public static string ToString(IntPtr L, int stackPos)
         {
             LuaTypes luaType = LuaDLL.lua_type(L, stackPos);
 
