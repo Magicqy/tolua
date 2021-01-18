@@ -19,7 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#define MISS_WARNING
 
 using System;
 using System.IO;
@@ -207,7 +206,7 @@ namespace LuaInterface
 
         void OpenBaseLuaLibs()
         {
-            DoFile("tolua.lua");            //tolua table名字已经存在了,不能用require
+            DoFile("tolua");            //tolua table名字已经存在了,不能用require
             LuaUnityLibs.OpenLuaLibs(L);
         }
 

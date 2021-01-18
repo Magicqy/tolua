@@ -8,7 +8,7 @@ namespace LuaInterface
 {
     public class LuaStatePtr
     {
-        protected IntPtr L;
+        public IntPtr L { get; protected set; }
 
         string jit = @"            
         function Euler(x, y, z)
