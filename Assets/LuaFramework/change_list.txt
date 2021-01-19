@@ -1,0 +1,5 @@
+* LuaState中的L修改为public get
+* 修改LuaTable的Call和Invoke方法中的LuaState，使用局部变量来保存，避免在执行方法过程中，调用了LuaTable的Dispose导致this.luaState被赋值为空
+* 修改LuaTable、LuaState、LuaFunction中的TryCatch，使用throw代替throw e来避免重置异常的调用栈
+* protoc-gen-lua库对于64位整数解析为数字而不是字符串decoder.lua（仅为了解决业务层使用不好友的问题，理论上会出现数值范围异常，待评估）
+* protoc-gen-lua库中对于类型导入支持不完善，需要修改protoc-gen-lua中message_type的定义，以及protobuf.lua/containers.lua中两处_concrete_class的调用
