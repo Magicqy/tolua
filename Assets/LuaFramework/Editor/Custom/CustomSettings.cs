@@ -9,10 +9,9 @@ using System.Reflection;
 
 public static class CustomSettings
 {
-    public static string saveDir = Application.dataPath + "/Source/Generate/";    
-    public static string toluaBaseType = Application.dataPath + "/ToLua/BaseType/";
-    public static string baseLuaDir = Application.dataPath + "/Tolua/Lua/";
-    public static string injectionFilesPath = Application.dataPath + "/ToLua/Injection/";
+    public static string saveDir = LuaConst.toluaPackageDir + "/Source/Generate/";    
+    public static string toluaBaseType = LuaConst.toluaPackageDir + "/ToLua/BaseType/";
+    public static string injectionFilesPath = LuaConst.toluaPackageDir + "/ToLua/Injection/";
 
     //导出时强制做为静态类的类型(注意customTypeList 还要添加这个类型才能导出)
     //unity 有些类作为sealed class, 其实完全等价于静态类
