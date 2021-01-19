@@ -21,6 +21,7 @@ local assert = assert
 local ipairs = ipairs
 local error = error
 local print = print
+local tonumber = tonumber
 
 local pb = require "pb"
 local encoder = require "protobuf.encoder"
@@ -33,8 +34,22 @@ local _DecodeSignedVarint = pb.signed_varint_decoder
 local _DecodeVarint32 = pb.varint_decoder
 local _DecodeSignedVarint32 = pb.signed_varint_decoder
 
-local _DecodeVarint64 = pb.varint_decoder64
-local _DecodeSignedVarint64 = pb.signed_varint_decoder64
+-----------------------------------------------
+--NOTICE：解析结果修改为成数字类型，否则对业务模块的使用者不友好（理论上会出现范围异常，待评估）
+local _DecodeVarint64 = function(...)
+	local str, pos = pb.varint_decoder64(...)
+	local element = tonumber(str)
+	return element, pos
+end
+local _DecodeSignedVarint64 = function(...)
+	local str, pos = pb.signed_varint_decoder64(...)
+	local element = tonumber(str)
+	return element, pos
+end
+-----------------------------------------------
+
+--local _DecodeVarint64 = pb.varint_decoder64
+--local _DecodeSignedVarint64 = pb.signed_varint_decoder64
 
 ReadTag = pb.read_tag
 
