@@ -24,7 +24,7 @@ module "protobuf.containers"
 
 local _RCFC_meta = {
     add = function(self)
-        local value = self._message_descriptor._concrete_class()
+        local value = (self._message_descriptor._concrete_class and self._message_descriptor._concrete_class()) or self._message_descriptor()
         local listener = self._listener
         rawset(self, #self + 1, value)
         value:_SetListener(listener)
