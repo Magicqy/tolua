@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if !USE_LUA_STANDALONE
+using UnityEngine;
+#endif
 using System;
 using System.IO;
 using System.Runtime.InteropServices;

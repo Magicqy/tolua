@@ -19,7 +19,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 using System;
 using System.Collections;
 
@@ -512,6 +514,7 @@ namespace LuaInterface
             }
         }
 
+#if !USE_LUA_STANDALONE
         public bool CheckVec3Array(IntPtr L, int pos)
         {
             return CheckArray(typeof(Vector3[]), L, pos);
@@ -536,6 +539,7 @@ namespace LuaInterface
         {
             return CheckArray(typeof(Color[]), L, pos);
         }
+#endif
 
         public bool CheckPtr(IntPtr L, int pos)
         {
@@ -640,6 +644,7 @@ namespace LuaInterface
             }
         }
 
+#if !USE_LUA_STANDALONE
         public bool CheckGameObject(IntPtr L, int pos)
         {
             return CheckFinalType(typeof(GameObject), L, pos);
@@ -668,6 +673,7 @@ namespace LuaInterface
                     return false;
             }
         }
+#endif
 
         static Type monoType = typeof(Type).GetType();
 

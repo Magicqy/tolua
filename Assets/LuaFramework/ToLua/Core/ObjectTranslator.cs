@@ -22,7 +22,9 @@ SOFTWARE.
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 
 namespace LuaInterface
 {
@@ -30,6 +32,7 @@ namespace LuaInterface
     {        
         private class DelayGC
         {
+#if !USE_LUA_STANDALONE
             public DelayGC(int id, UnityEngine.Object obj, float time)
             {
                 this.id = id;
@@ -40,6 +43,7 @@ namespace LuaInterface
             public int id;
             public UnityEngine.Object obj;
             public float time;
+#endif
         }
 
         private class CompareObject : IEqualityComparer<object>
@@ -153,12 +157,16 @@ namespace LuaInterface
         //Unity Object 延迟删除
         public void DelayDestroy(int id, float time)
         {
+#if USE_LUA_STANDALONE
+            throw new NotImplementedException("DelayDestroy NotImplemented with USE_LUA_STANDALONE");
+#else
             UnityEngine.Object obj = (UnityEngine.Object)GetObject(id);
 
             if (obj != null)
             {
                 gcList.Add(new DelayGC(id, obj, time));
             }            
+#endif            
         }
 
         public bool Getudata(object o, out int index)
@@ -179,6 +187,9 @@ namespace LuaInterface
 
         bool RemoveFromGCList(int id)
         {
+#if USE_LUA_STANDALONE
+            throw new NotImplementedException("RemoveFromGCList NotImplemented with USE_LUA_STANDALONE");
+#else
             int index = gcList.FindIndex((p) => { return p.id == id; });
 
             if (index >= 0)
@@ -188,8 +199,10 @@ namespace LuaInterface
             }
 
             return false;
+#endif
         }
         
+#if !USE_LUA_STANDALONE
         //延迟删除处理
         void DestroyUnityObject(int udata, UnityEngine.Object obj)
         {
@@ -209,9 +222,11 @@ namespace LuaInterface
 
             UnityEngine.Object.Destroy(obj);
         }
+#endif
 
         public void Collect()
         {
+#if !USE_LUA_STANDALONE
             if (gcList.Count == 0)
             {
                 return;
@@ -233,6 +248,7 @@ namespace LuaInterface
                     gcList[i].time = time;
                 }
             }
+#endif
         }
 
         public void StepCollect()

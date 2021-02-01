@@ -38,7 +38,9 @@ namespace LuaInterface
             _reflection = this;
 #endif
             LoadAssembly("mscorlib");
+#if !USE_LUA_STANDALONE
             LoadAssembly("UnityEngine");
+#endif
             //注释避免放在插件目录无法加载，需要可从lua代码loadassembly
             //LoadAssembly("Assembly-CSharp"); 
         }

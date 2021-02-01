@@ -4,16 +4,21 @@
 --      Use, modification and distribution are subject to the "MIT License"
 --------------------------------------------------------------------------------
 if jit then		
-	if jit.opt then		
-		jit.opt.start(3)				
-	end		
-	
-	print("ver"..jit.version_num.." jit: ", jit.status())
-	print(string.format("os: %s, arch: %s", jit.os, jit.arch))
+	-- if jit.opt then		
+	-- 	jit.opt.start(3)				
+	-- end		
+	jit.off()
+	jit.flush()
+	-- print("ver"..jit.version_num.." jit: ", jit.status())
+	-- print(string.format("os: %s, arch: %s", jit.os, jit.arch))
 end
 
 if DebugServerIp then  
   require("mobdebug").start(DebugServerIp)
+end
+
+if USE_LUA_STANDALONE then
+	UnityEngine = UnityEngine or {}
 end
 
 require "misc.functions"
@@ -29,7 +34,7 @@ RaycastHit	= require "UnityEngine.RaycastHit"
 Touch		= require "UnityEngine.Touch"
 LayerMask	= require "UnityEngine.LayerMask"
 Plane		= require "UnityEngine.Plane"
-Time		= reimport "UnityEngine.Time"
+--Time		= reimport "UnityEngine.Time"
 
 list		= require "list"
 utf8		= require "misc.utf8"

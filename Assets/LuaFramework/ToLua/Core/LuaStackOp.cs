@@ -19,7 +19,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 using System;
 using System.Runtime.InteropServices;
 using System.Collections;
@@ -102,6 +104,7 @@ namespace LuaInterface
             return (EventObject)ToLua.ToObject(L, stackPos);
         }
 
+#if !USE_LUA_STANDALONE
         public Transform ToTransform(IntPtr L, int stackPos)
         {
             return (Transform)ToLua.ToObject(L, stackPos);
@@ -111,6 +114,7 @@ namespace LuaInterface
         {
             return (GameObject)ToLua.ToObject(L, stackPos);
         }
+#endif
 
         public object ToObject(IntPtr L, int stackPos)
         {
@@ -202,6 +206,7 @@ namespace LuaInterface
             return (EventObject)ToLua.CheckObject(L, stackPos, typeof(EventObject));
         }
 
+#if !USE_LUA_STANDALONE
         public Transform CheckTransform(IntPtr L, int stackPos)
         {
             return (Transform)ToLua.CheckObject(L, stackPos, typeof(Transform));
@@ -211,6 +216,7 @@ namespace LuaInterface
         {
             return (GameObject)ToLua.CheckObject(L, stackPos, typeof(GameObject));
         }
+#endif
 
         public void Push(IntPtr L, sbyte n)
         {
@@ -272,6 +278,7 @@ namespace LuaInterface
             ToLua.Push(L, obj);
         }
 
+#if !USE_LUA_STANDALONE
         public void Push(IntPtr L, GameObject o)
         {
             if (o == null)
@@ -319,6 +326,7 @@ namespace LuaInterface
                 ToLua.PushUserData(L, o, reference);
             }
         }
+#endif
 
         #region Nullable
         public Nullable<sbyte> ToNullSByte(IntPtr L, int stackPos)
@@ -510,6 +518,7 @@ namespace LuaInterface
             return ToLua.ToStructArray<ulong>(L, stackPos);
         }
 
+#if !USE_LUA_STANDALONE
         public Nullable<Vector3> ToNullVec3(IntPtr L, int stackPos)
         {
             if (LuaDLL.lua_type(L, stackPos) == LuaTypes.LUA_TNIL)
@@ -624,6 +633,7 @@ namespace LuaInterface
         {
             return ToLua.ToStructArray<Vector4>(L, stackPos);
         }
+#endif
 
         public Type[] ToTypeArray(IntPtr L, int stackPos)
         {
@@ -819,6 +829,7 @@ namespace LuaInterface
             return ToLua.CheckStructArray<ulong>(L, stackPos);
         }
 
+#if !USE_LUA_STANDALONE
         public Nullable<Vector3> CheckNullVec3(IntPtr L, int stackPos)
         {
             if (LuaDLL.lua_type(L, stackPos) == LuaTypes.LUA_TNIL)
@@ -923,6 +934,7 @@ namespace LuaInterface
         {
             return ToLua.CheckStructArray<Vector4>(L, stackPos);
         }        
+#endif
 
         public Type[] CheckTypeArray(IntPtr L, int stackPos)
         {
@@ -1085,6 +1097,7 @@ namespace LuaInterface
             }
         }
 
+#if !USE_LUA_STANDALONE
         public void Push(IntPtr L, Nullable<Vector3> v3)
         {
             if (v3 == null)
@@ -1210,6 +1223,7 @@ namespace LuaInterface
                 ToLua.Push(L, n.Value);
             }
         }
+#endif
         #endregion
     }
 }

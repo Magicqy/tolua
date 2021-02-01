@@ -1,10 +1,18 @@
-﻿using UnityEngine;
+﻿#if !USE_LUA_STANDALONE
+using UnityEngine;
+#endif
 
 public static class LuaConst
 {
+#if USE_LUA_STANDALONE
+    public static string toluaPackageDir = "Assets/LuaFramework/";                     //tolua插件目录
+    public static string luaDir = "Assets/StreamingAssets/LuaScripts/";                //lua逻辑代码目录
+    public static string toluaDir = "Assets/StreamingAssets/ToLuaScripts/";            //tolua lua文件目录
+#else
     public static string toluaPackageDir = Application.dataPath + "/LuaFramework/";                //tolua插件目录
     public static string luaDir = Application.streamingAssetsPath + "/LuaScripts/";                //lua逻辑代码目录
     public static string toluaDir = Application.streamingAssetsPath + "/ToLuaScripts/";            //tolua lua文件目录
+#endif
 
 #if UNITY_STANDALONE
     public static string osDir = "Win";
@@ -16,7 +24,11 @@ public static class LuaConst
     public static string osDir = "";        
 #endif
 
-    public static string luaResDir = string.Format("{0}/{1}/Lua", Application.persistentDataPath, osDir);      //手机运行时lua文件下载目录    
+#if USE_LUA_STANDALONE
+    public static string luaResDir = string.Format("{0}/Lua", osDir);
+#else
+    public static string luaResDir = string.Format("{0}/{1}/Lua", Application.persistentDataPath, osDir);      //手机运行时lua文件下载目录   
+#endif
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN    
     public static string zbsDir = "D:/ZeroBraneStudio/lualibs/mobdebug";        //ZeroBraneStudio目录       

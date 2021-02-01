@@ -21,7 +21,9 @@ SOFTWARE.
 */
 using System;
 using System.Collections.Generic;
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 
 namespace LuaInterface
 {
@@ -406,11 +408,13 @@ namespace LuaInterface
             ++argCount;
         }
 
+#if !USE_LUA_STANDALONE
         public void PushLayerMask(LayerMask n)
         {
             luaState.PushLayerMask(n);
             ++argCount;
         }
+#endif
 
         public void Push(uint un)
         {
@@ -460,11 +464,13 @@ namespace LuaInterface
             ++argCount;
         }
 
+#if !USE_LUA_STANDALONE
         public void Push(UnityEngine.Object o)
         {
             luaState.Push(o);
             ++argCount;
         }
+#endif
 
         public void Push(Type t)
         {
@@ -484,6 +490,7 @@ namespace LuaInterface
             ++argCount;
         }
 
+#if !USE_LUA_STANDALONE
         public void Push(Vector3 v3)
         {
             luaState.Push(v3);
@@ -569,6 +576,7 @@ namespace LuaInterface
                 throw;
             }
         }
+#endif
 
         public void Push(LuaByteBuffer buffer)
         {
@@ -709,6 +717,7 @@ namespace LuaInterface
             }
         }
 
+#if !USE_LUA_STANDALONE
         public Vector3 CheckVector3()
         {
             try
@@ -812,6 +821,7 @@ namespace LuaInterface
                 throw;
             }
         }
+#endif
 
         public long CheckLong()
         {

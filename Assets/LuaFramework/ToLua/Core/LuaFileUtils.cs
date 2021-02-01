@@ -20,7 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 using System.Collections.Generic;
 using System.IO;
 using System.Collections;
@@ -51,7 +53,9 @@ namespace LuaInterface
         //beZip = false 在search path 中查找读取lua文件。否则从外部设置过来bundel文件中读取lua文件
         public bool beZip = false;
         protected List<string> searchPaths = new List<string>();
+#if !USE_LUA_STANDALONE
         protected Dictionary<string, AssetBundle> zipMap = new Dictionary<string, AssetBundle>();
+#endif
 
         protected static LuaFileUtils instance = null;
 
@@ -67,12 +71,14 @@ namespace LuaInterface
                 instance = null;
                 searchPaths.Clear();
 
+#if !USE_LUA_STANDALONE
                 foreach (KeyValuePair<string, AssetBundle> iter in zipMap)
                 {
                     iter.Value.Unload(true);
                 }
 
                 zipMap.Clear();
+#endif
             }
         }
 
@@ -111,10 +117,12 @@ namespace LuaInterface
             return false;
         }
 
+#if !USE_LUA_STANDALONE
         public void AddSearchBundle(string name, AssetBundle bundle)
         {
             zipMap[name] = bundle;
         }
+#endif
 
         public string FindFile(string fileName)
         {
@@ -155,7 +163,9 @@ namespace LuaInterface
 
         public virtual byte[] ReadFile(string fileName)
         {
+#if !USE_LUA_STANDALONE
             if (!beZip)
+#endif
             {
                 string path = FindFile(fileName);
                 byte[] str = null;
@@ -171,10 +181,12 @@ namespace LuaInterface
 
                 return str;
             }
+#if !USE_LUA_STANDALONE
             else
             {
                 return ReadZipFile(fileName);
             }
+#endif
         }
 
         public virtual string FindFileError(string fileName)
@@ -221,6 +233,7 @@ namespace LuaInterface
             }
         }
 
+#if !USE_LUA_STANDALONE
         byte[] ReadZipFile(string fileName)
         {
             AssetBundle zipFile = null;
@@ -268,6 +281,7 @@ namespace LuaInterface
 
             return buffer;
         }
+#endif
 
         public static string GetOSDir()
         {

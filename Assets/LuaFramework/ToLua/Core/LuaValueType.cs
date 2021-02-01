@@ -71,6 +71,7 @@ namespace LuaInterface
         static LuaValueTypeName()
         {
             names[LuaValueType.None] = "None";
+#if !USE_LUA_STANDALONE
             names[LuaValueType.Vector3] = "Vector3";
             names[LuaValueType.Quaternion] = "Quaternion";
             names[LuaValueType.Vector2] = "Vector2";
@@ -81,6 +82,7 @@ namespace LuaInterface
             names[LuaValueType.Touch] = "Touch";
             names[LuaValueType.LayerMask] = "LayerMask";
             names[LuaValueType.RaycastHit] = "RaycastHit";
+#endif
         }
 
         static public string Get(int type)

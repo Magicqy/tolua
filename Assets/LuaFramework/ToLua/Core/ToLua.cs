@@ -19,7 +19,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -59,6 +61,7 @@ namespace LuaInterface
 
         static ToLua()
         {
+#if !USE_LUA_STANDALONE
             ToVarMap[LuaValueType.Vector3] = ToObjectVec3;
             ToVarMap[LuaValueType.Quaternion] = ToObjectQuat;
             ToVarMap[LuaValueType.Vector2] = ToObjectVec2;
@@ -67,6 +70,7 @@ namespace LuaInterface
             ToVarMap[LuaValueType.Ray] = ToObjectRay;
             ToVarMap[LuaValueType.LayerMask] = ToObjectLayerMask;
             ToVarMap[LuaValueType.Bounds] = ToObjectBounds;
+#endif
         }
 
         public static void OpenLibs(IntPtr L)
@@ -676,6 +680,7 @@ namespace LuaInterface
             return LuaStatic.GetLuaThread(L, reference);
         }
 
+#if !USE_LUA_STANDALONE
         public static Vector3 ToVector3(IntPtr L, int stackPos)
         {
             float x = 0, y = 0, z = 0;
@@ -763,6 +768,7 @@ namespace LuaInterface
         {
             return LuaDLL.tolua_getlayermask(L, stackPos);
         }
+#endif
 
         public static object ToVarObject(IntPtr L, int stackPos)
         {
@@ -844,6 +850,7 @@ namespace LuaInterface
             return StackTraits<T>.To(L, stackPos);
         }
 
+#if !USE_LUA_STANDALONE
         static object ToObjectVec3(IntPtr L, int stackPos)
         {
             return ToVector3(L, stackPos);
@@ -883,6 +890,7 @@ namespace LuaInterface
         {
             return ToBounds(L, stackPos);
         }
+#endif
 
         public static LuaFunction CheckLuaFunction(IntPtr L, int stackPos)
         {
@@ -1167,6 +1175,7 @@ namespace LuaInterface
             return null;
         }
 
+#if !USE_LUA_STANDALONE
         static public Vector3 CheckVector3(IntPtr L, int stackPos)
         {
             int type = LuaDLL.tolua_getvaluetype(L, stackPos);
@@ -1280,6 +1289,7 @@ namespace LuaInterface
 
             return LuaDLL.tolua_getlayermask(L, stackPos);
         }
+#endif
 
         public static T CheckValue<T>(IntPtr L, int stackPos) where T : struct
         {
@@ -1342,6 +1352,7 @@ namespace LuaInterface
                     IntPtr source = LuaDLL.tolua_tolstring(L, stackPos, out len);
                     return new LuaByteBuffer(source, len);
                 }
+#if !USE_LUA_STANDALONE				
                 else if (t == typeof(Vector3))
                 {
                     return CheckVector3(L, stackPos);
@@ -1374,6 +1385,7 @@ namespace LuaInterface
                 {
                     return CheckLayerMask(L, stackPos);
                 }
+#endif				
                 else
                 {
                     if (luaType == LuaTypes.LUA_TTABLE)
@@ -1410,6 +1422,7 @@ namespace LuaInterface
             }
         }
 
+#if !USE_LUA_STANDALONE	
         public static UnityEngine.Object CheckUnityObject(IntPtr L, int stackPos, Type type)
         {
             int udata = LuaDLL.tolua_rawnetobj(L, stackPos);
@@ -1492,6 +1505,7 @@ namespace LuaInterface
             LuaDLL.luaL_typerror(L, stackPos, type.FullName);
             return null;
         }
+#endif
 
         //必须检测类型
         public static object[] CheckObjectArray(IntPtr L, int stackPos)
@@ -2221,6 +2235,7 @@ namespace LuaInterface
         }
 
 
+#if !USE_LUA_STANDALONE
         public static void Push(IntPtr L, Vector3 v3)
         {
             LuaDLL.tolua_pushvec3(L, v3.x, v3.y, v3.z);
@@ -2400,6 +2415,7 @@ namespace LuaInterface
             LuaDLL.tolua_pushlayermask(L, l.value);
         }
 
+#endif
         public static void Push(IntPtr L, LuaByteBuffer bb)
         {            
             LuaDLL.lua_pushlstring(L, bb.buffer, bb.buffer.Length);
@@ -2625,6 +2641,7 @@ namespace LuaInterface
             PushUserData(L, o, reference);
         }
 
+#if !USE_LUA_STANDALONE
         public static void Push(IntPtr L, UnityEngine.Object obj)
         {
             if (obj == null)
@@ -2648,6 +2665,7 @@ namespace LuaInterface
                 PushUserObject(L, obj);
             }
         }
+#endif
 
         public static void PushSealed<T>(IntPtr L, T o)
         {
@@ -2743,6 +2761,7 @@ namespace LuaInterface
                     LuaByteBuffer lbb = (LuaByteBuffer)obj;
                     LuaDLL.lua_pushlstring(L, lbb.buffer, lbb.buffer.Length);
                 }
+#if !USE_LUA_STANDALONE
                 else if (t == typeof(Vector3))
                 {
                     Push(L, (Vector3)obj);
@@ -2783,6 +2802,7 @@ namespace LuaInterface
                 {
                     PushLayerMask(L, (LayerMask)obj);
                 }
+#endif
                 else
                 {
                     LuaPushVarObject _Push = null;
@@ -2811,6 +2831,7 @@ namespace LuaInterface
                 {
                     Push(L, (LuaBaseRef)obj);
                 }
+#if !USE_LUA_STANDALONE
                 else if (obj is UnityEngine.Object)
                 {
                     Push(L, (UnityEngine.Object)obj);
@@ -2819,6 +2840,7 @@ namespace LuaInterface
                 {
                     Push(L, (UnityEngine.TrackedReference)obj);
                 }
+#endif
                 else if (obj is Delegate)
                 {
                     Push(L, (Delegate)obj);

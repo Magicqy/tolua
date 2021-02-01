@@ -24,7 +24,9 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 
 namespace LuaInterface
 {
@@ -117,11 +119,13 @@ namespace LuaInterface
                 Type declaringType = method.DeclaringType;
                 string str = declaringType.Namespace;
 
+#if !USE_LUA_STANDALONE
                 if ( (InstantiateCount == 0 && declaringType == typeof(UnityEngine.Object) &&  method.Name == "Instantiate") //(method.Name == "Internal_CloneSingle"
                     || (SendMsgCount == 0 && declaringType == typeof(GameObject) && method.Name == "SendMessage"))
                 {
                     break;
                 }
+#endif
 
                 if ((str != null) && (str.Length != 0))
                 {
@@ -181,12 +185,16 @@ namespace LuaInterface
         public static void Init(IntPtr L0)
         {
             L = L0;
+#if USE_LUA_STANDALONE
+            projectFolder = System.IO.Directory.GetCurrentDirectory().Replace('\\', '/') + "/";
+#else
             Type type = typeof(StackTraceUtility);
             FieldInfo field = type.GetField("projectFolder", BindingFlags.Static | BindingFlags.GetField | BindingFlags.NonPublic);
             LuaException.projectFolder = (string)field.GetValue(null);
             projectFolder = projectFolder.Replace('\\', '/');
 #if DEVELOPER
             Debugger.Log("projectFolder is {0}", projectFolder);
+#endif
 #endif
         }
     }

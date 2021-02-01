@@ -19,7 +19,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 using System;
 using System.Collections.Generic;
 
@@ -32,6 +34,7 @@ namespace LuaInterface
         static TypeChecker()
         {
             LuaValueTypeMap[LuaValueType.None] = null;
+#if !USE_LUA_STANDALONE
             LuaValueTypeMap[LuaValueType.Vector3] = typeof(Vector3);
             LuaValueTypeMap[LuaValueType.Quaternion] = typeof(Quaternion);
             LuaValueTypeMap[LuaValueType.Vector2] = typeof(Vector2);
@@ -42,6 +45,7 @@ namespace LuaInterface
             LuaValueTypeMap[LuaValueType.Touch] = typeof(Touch);
             LuaValueTypeMap[LuaValueType.LayerMask] = typeof(LayerMask);
             LuaValueTypeMap[LuaValueType.RaycastHit] = typeof(RaycastHit);
+#endif
             LuaValueTypeMap[LuaValueType.Int64] = typeof(long);
             LuaValueTypeMap[LuaValueType.UInt64] = typeof(ulong);
         }        

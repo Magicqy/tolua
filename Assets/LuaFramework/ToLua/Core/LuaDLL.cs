@@ -575,16 +575,16 @@ namespace LuaInterface
 
         public static string lua_ptrtostring(IntPtr str, int len)
         {
+#if !USE_LUA_STANDALONE
             string ss = Marshal.PtrToStringAnsi(str, len);
-
-            if (ss == null)
+            if (ss != null)
             {
-                byte[] buffer = new byte[len];
-                Marshal.Copy(str, buffer, 0, len);
-                return Encoding.UTF8.GetString(buffer);
+                return ss;
             }
-
-            return ss;
+#endif
+            byte[] buffer = new byte[len];
+            Marshal.Copy(str, buffer, 0, len);
+            return Encoding.UTF8.GetString(buffer);
         }
 
         public static string lua_tostring(IntPtr luaState, int index)

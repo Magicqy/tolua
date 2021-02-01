@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !USE_LUA_STANDALONE
+using System;
 using LuaInterface;
 
 public class UnityEngine_CoroutineWrap
@@ -10,3 +11,4 @@ public class UnityEngine_CoroutineWrap
         L.EndClass();
     }
 }
+#endif

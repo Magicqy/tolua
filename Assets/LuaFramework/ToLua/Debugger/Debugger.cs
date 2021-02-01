@@ -1,4 +1,73 @@
-﻿using UnityEngine;
+﻿#if USE_LUA_STANDALONE
+namespace LuaInterface
+{
+    public static class Debugger
+    {
+        public enum LogType
+        {
+            Log,
+            Warning,
+            Error,
+            Exception,
+        }
+
+        public interface ILogHandler
+        {
+            void LogMessage(LogType logType, object arg0);
+            void LogMessage(LogType logType, string format, object arg0);
+            void LogMessage(LogType logType, string format, object arg0, object arg1);
+            void LogMessage(LogType logType, string format, object arg0, object arg1, object arg2);
+            void LogMessage(LogType logType, string format, params object[] args);
+        }
+
+        private class DummyLogHandler : ILogHandler
+        {
+            void ILogHandler.LogMessage(LogType logType, object arg0) { }
+            void ILogHandler.LogMessage(LogType logType, string format, object arg0) { }
+            void ILogHandler.LogMessage(LogType logType, string format, object arg0, object arg1) { }
+            void ILogHandler.LogMessage(LogType logType, string format, object arg0, object arg1, object arg2) { }
+            void ILogHandler.LogMessage(LogType logType, string format, params object[] args) { }
+        }
+
+        private static DummyLogHandler dummyLogHandler = new DummyLogHandler();
+        private static ILogHandler currLogHandler = dummyLogHandler;
+        private static ILogHandler customLogHandler;
+
+        public static void SetCustomLogHandler(ILogHandler handler)
+        {
+            customLogHandler = handler;
+        }
+
+        public static bool useLog
+        {
+            get { return currLogHandler != dummyLogHandler; }
+            set { currLogHandler = value ? customLogHandler : dummyLogHandler; }
+        }
+
+        public static void Log(object arg0) { currLogHandler.LogMessage(LogType.Log, arg0); }
+        public static void Log(string format, object arg0) { currLogHandler.LogMessage(LogType.Log, format, arg0); }
+        public static void Log(string format, object arg0, object arg1) { currLogHandler.LogMessage(LogType.Log, format, arg0, arg1); }
+        public static void Log(string format, object arg0, object arg1, object arg2) { currLogHandler.LogMessage(LogType.Log, format, arg0, arg1, arg2); }
+        public static void Log(string format, params object[] args) { currLogHandler.LogMessage(LogType.Log, format, args); }
+
+        public static void LogWarning(object arg0) { currLogHandler.LogMessage(LogType.Warning, arg0); }
+        public static void LogWarning(string format, object arg0) { currLogHandler.LogMessage(LogType.Warning, format, arg0); }
+        public static void LogWarning(string format, object arg0, object arg1) { currLogHandler.LogMessage(LogType.Warning, format, arg0, arg1); }
+        public static void LogWarning(string format, object arg0, object arg1, object arg2) { currLogHandler.LogMessage(LogType.Warning, format, arg0, arg1, arg2); }
+        public static void LogWarning(string format, params object[] args) { currLogHandler.LogMessage(LogType.Warning, format, args); }
+
+        public static void LogError(object arg0) { currLogHandler.LogMessage(LogType.Error, arg0); }
+        public static void LogError(string format, object arg0) { currLogHandler.LogMessage(LogType.Error, format, arg0); }
+        public static void LogError(string format, object arg0, object arg1) { currLogHandler.LogMessage(LogType.Error, format, arg0, arg1); }
+        public static void LogError(string format, object arg0, object arg1, object arg2) { currLogHandler.LogMessage(LogType.Error, format, arg0, arg1, arg2); }
+        public static void LogError(string format, params object[] args) { currLogHandler.LogMessage(LogType.Error, format, args); }
+
+        public static void LogException(System.Exception e) { currLogHandler.LogMessage(LogType.Exception, e); }
+        public static void LogException(string message, System.Exception e) { currLogHandler.LogMessage(LogType.Exception, "{0} {1}", message, e); }
+    }
+}
+#else
+using UnityEngine;
 using System;
 using System.Text;
 
@@ -237,3 +306,4 @@ namespace LuaInterface
         }
     }
 }
+#endif

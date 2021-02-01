@@ -2,7 +2,9 @@
 using LuaInterface;
 using System.Collections.Generic;
 using System.Reflection;
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 using System.Collections;
 
 public class System_Collections_Generic_ListWrap

@@ -22,7 +22,9 @@ SOFTWARE.
 
 using System;
 using System.Runtime.CompilerServices;
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 
 namespace LuaInterface
 {

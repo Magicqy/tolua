@@ -28,7 +28,9 @@ using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Text;
+#if !USE_LUA_STANDALONE
 using UnityEngine;
+#endif
 
 namespace LuaInterface
 {
@@ -107,7 +109,9 @@ namespace LuaInterface
                 injectionState = mainState;
             }
 
+#if !USE_LUA_STANDALONE
             float time = Time.realtimeSinceStartup;
+#endif
             InitTypeTraits();
             InitStackTraits();
             L = LuaNewState();            
@@ -118,7 +122,9 @@ namespace LuaInterface
             OpenBaseLibs();
             LuaSetTop(0);
             InitLuaPath();
+#if !USE_LUA_STANDALONE
             Debugger.Log("Init lua state cost: {0}", Time.realtimeSinceStartup - time);
+#endif
         }        
 
         void OpenBaseLibs()
@@ -158,14 +164,18 @@ namespace LuaInterface
             LuaInterface_EventObjectWrap.Register(this);
             EndModule();//end LuaInterface
 
+#if !USE_LUA_STANDALONE
             BeginModule("UnityEngine");
             UnityEngine_ObjectWrap.Register(this);            
             UnityEngine_CoroutineWrap.Register(this);
             EndModule(); //end UnityEngine
+#endif
 
             EndModule(); //end global
                         
+#if !USE_LUA_STANDALONE
             LuaUnityLibs.OpenLibs(L);            
+#endif
             LuaReflection.OpenLibs(L);
             ArrayMetatable = metaMap[typeof(System.Array)];
             TypeMetatable = metaMap[typeof(System.Type)];
@@ -181,6 +191,7 @@ namespace LuaInterface
 
             if (!LuaFileUtils.Instance.beZip)
             {
+#if !USE_LUA_STANDALONE
 #if UNITY_EDITOR
                 if (!Directory.Exists(LuaConst.luaDir))
                 {
@@ -201,13 +212,16 @@ namespace LuaInterface
                 {
                     AddSearchPath(LuaConst.luaResDir);
                 }
+#endif
             }
         }
 
         void OpenBaseLuaLibs()
         {
             DoFile("tolua");            //tolua table名字已经存在了,不能用require
+#if !USE_LUA_STANDALONE
             LuaUnityLibs.OpenLuaLibs(L);
+#endif
         }
 
         public void Start()
@@ -224,18 +238,20 @@ namespace LuaInterface
             if (UnityEditor.EditorPrefs.GetInt(Application.dataPath + "InjectStatus") == 1)
             { 
 #endif
-                DoFile("System/Injection/LuaInjectionStation.lua");
+                DoFile("System/Injection/LuaInjectionStation");
                 bInjectionInited = true;
 #if UNITY_EDITOR
             }
 #endif
 #endif
+#if !USE_LUA_STANDALONE
             PackBounds = GetFuncRef("Bounds.New");
             UnpackBounds = GetFuncRef("Bounds.Get");
             PackRay = GetFuncRef("Ray.New");
             UnpackRay = GetFuncRef("Ray.Get");
             PackRaycastHit = GetFuncRef("RaycastHit.New");
             PackTouch = GetFuncRef("Touch.New");
+#endif
         }
 
         public int OpenLibs(LuaCSFunction open)
@@ -1208,6 +1224,7 @@ namespace LuaInterface
             LuaDLL.lua_pushlightuserdata(L, p);
         }
 
+#if !USE_LUA_STANDALONE
         public void Push(Vector3 v3)
         {            
             LuaDLL.tolua_pushvec3(L, v3.x, v3.y, v3.z);
@@ -1257,6 +1274,7 @@ namespace LuaInterface
         {
             LuaDLL.tolua_pushlayermask(L, mask.value);
         }
+#endif
 
         public void Push(LuaByteBuffer bb)
         {
@@ -1370,6 +1388,7 @@ namespace LuaInterface
             ToLua.Push(L, iter);
         }
 
+#if !USE_LUA_STANDALONE
         public void Push(UnityEngine.Object obj)
         {
             ToLua.Push(L, obj);
@@ -1379,6 +1398,7 @@ namespace LuaInterface
         {
             ToLua.Push(L, tracker);
         }
+#endif
 
         public void PushVariant(object obj)
         {
@@ -1405,6 +1425,7 @@ namespace LuaInterface
             StackTraits<T>.Push(L, o);
         }
 
+#if !USE_LUA_STANDALONE
         Vector3 ToVector3(int stackPos)
         {            
             float x, y, z;
@@ -1564,6 +1585,7 @@ namespace LuaInterface
             stackPos = LuaDLL.abs_index(L, stackPos);
             return LuaDLL.tolua_getlayermask(L, stackPos);
         }
+#endif
 
         public long CheckLong(int stackPos)
         {
@@ -2618,6 +2640,7 @@ namespace LuaInterface
             TypeTraits<ulong[]>.Init(_ck.CheckUInt64Array);
             TypeTraits<string[]>.Init(_ck.CheckStringArray);
 
+#if !USE_LUA_STANDALONE
             TypeTraits<Vector3>.Init(_ck.CheckVec3);
             TypeTraits<Quaternion>.Init(_ck.CheckQuat);
             TypeTraits<Vector2>.Init(_ck.CheckVec2);
@@ -2645,6 +2668,7 @@ namespace LuaInterface
             TypeTraits<Vector2[]>.Init(_ck.CheckVec2Array);
             TypeTraits<Color[]>.Init(_ck.CheckColorArray);
             TypeTraits<Vector4[]>.Init(_ck.CheckVec4Array);
+#endif
 
             TypeTraits<IntPtr>.Init(_ck.CheckPtr);
             TypeTraits<UIntPtr>.Init(_ck.CheckPtr);
@@ -2657,8 +2681,10 @@ namespace LuaInterface
             TypeTraits<EventObject>.Init(_ck.CheckEventObject);
             TypeTraits<IEnumerator>.Init(_ck.CheckEnumerator);
             TypeTraits<Type>.Init(_ck.CheckMonoType);
+#if !USE_LUA_STANDALONE
             TypeTraits<GameObject>.Init(_ck.CheckGameObject);
             TypeTraits<Transform>.Init(_ck.CheckTransform);
+#endif
             TypeTraits<Type[]>.Init(_ck.CheckTypeArray);
             TypeTraits<object>.Init(_ck.CheckVariant);
             TypeTraits<object[]>.Init(_ck.CheckObjectArray);
@@ -2711,6 +2737,7 @@ namespace LuaInterface
             StackTraits<ulong[]>.Init(ToLua.Push, op.CheckUInt64Array, op.ToUInt64Array);
             StackTraits<string[]>.Init(ToLua.Push, ToLua.CheckStringArray, ToLua.ToStringArray);
 
+#if !USE_LUA_STANDALONE
             StackTraits<Vector3>.Init(ToLua.Push, ToLua.CheckVector3, ToLua.ToVector3);
             StackTraits<Quaternion>.Init(ToLua.Push, ToLua.CheckQuaternion, ToLua.ToQuaternion);
             StackTraits<Vector2>.Init(ToLua.Push, ToLua.CheckVector2, ToLua.ToVector2);
@@ -2739,6 +2766,7 @@ namespace LuaInterface
             StackTraits<Color[]>.Init(ToLua.Push, op.CheckColorArray, op.ToColorArray);
             StackTraits<Vector4[]>.Init(ToLua.Push, op.CheckVec4Array, op.ToVec4Array);
 
+#endif
             StackTraits<UIntPtr>.Init(op.Push, op.CheckUIntPtr, op.CheckUIntPtr); //"NYI"
             StackTraits<IntPtr>.Init(LuaDLL.lua_pushlightuserdata, ToLua.CheckIntPtr, ToLua.CheckIntPtr);
             StackTraits<LuaFunction>.Init(ToLua.Push, ToLua.CheckLuaFunction, ToLua.ToLuaFunction);
@@ -2751,8 +2779,10 @@ namespace LuaInterface
             StackTraits<IEnumerator>.Init(ToLua.Push, ToLua.CheckIter, op.ToIter);
             StackTraits<Type>.Init(ToLua.Push, ToLua.CheckMonoType, op.ToType);
             StackTraits<Type[]>.Init(ToLua.Push, op.CheckTypeArray, op.ToTypeArray);
+#if !USE_LUA_STANDALONE
             StackTraits<GameObject>.Init(op.Push, op.CheckGameObject, op.ToGameObject);
             StackTraits<Transform>.Init(op.Push, op.CheckTransform, op.ToTransform);
+#endif
             StackTraits<object>.Init(ToLua.Push, ToLua.ToVarObject, ToLua.ToVarObject);
             StackTraits<object[]>.Init(ToLua.Push, ToLua.CheckObjectArray, ToLua.ToObjectArray);
 
