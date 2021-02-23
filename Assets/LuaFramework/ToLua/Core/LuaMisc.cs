@@ -197,9 +197,9 @@ namespace LuaInterface
                 return "[]";
             }
 
-            using (CString.Block())
+            var sb = StringBuilderCache.Acquire();
+            try
             {
-                CString sb = CString.Alloc(64);
                 sb.Append('[');
 
                 for (int i = 1; i < count; i++)
@@ -209,6 +209,10 @@ namespace LuaInterface
 
                 sb.Append(']');
                 return sb.ToString();
+            }
+            finally
+            {
+                StringBuilderCache.Release(sb); sb = null;
             }
         }
 

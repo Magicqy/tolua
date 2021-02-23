@@ -205,6 +205,31 @@ namespace LuaInterface
 
     public class LuaDLL
     {
+        [ThreadStatic]
+        static System.Collections.Generic.Dictionary<IntPtr, LuaCSFunction> luaCsFuncHolder;
+
+        public static void HoldCsFunc(IntPtr ptr, LuaCSFunction func)
+        {
+            if (luaCsFuncHolder.ContainsKey(ptr))
+            {
+                luaCsFuncHolder[ptr] = func;
+            }
+            else
+            {
+                luaCsFuncHolder[ptr] = func;
+            }
+        }
+
+        public static void OpenCsFuncHolder()
+        {
+            luaCsFuncHolder = new System.Collections.Generic.Dictionary<IntPtr, LuaCSFunction>();
+        }
+
+        public static void ReleaseCsFuncHolder()
+        {
+            luaCsFuncHolder = null;
+        }
+
         public static string version = "1.0.7.386";
         public static int LUA_MULTRET = -1;
         public static string[] LuaTypeName = { "none", "nil", "boolean", "lightuserdata", "number", "string", "table", "function", "userdata", "thread" };        
@@ -518,7 +543,7 @@ namespace LuaInterface
 
         public static void lua_pushcfunction(IntPtr luaState, LuaCSFunction func)
         {
-            IntPtr fn = Marshal.GetFunctionPointerForDelegate(func);
+            IntPtr fn = Marshal.GetFunctionPointerForDelegate(func); HoldCsFunc(fn, func);
             lua_pushcclosure(luaState, fn, 0);
         }
 
@@ -1223,7 +1248,7 @@ namespace LuaInterface
 
         public static void tolua_pushcfunction(IntPtr luaState, LuaCSFunction func)
         {
-            IntPtr fn = Marshal.GetFunctionPointerForDelegate(func);
+            IntPtr fn = Marshal.GetFunctionPointerForDelegate(func); HoldCsFunc(fn, func);
             tolua_pushcfunction(luaState, fn);
         }
 
@@ -1244,7 +1269,7 @@ namespace LuaInterface
 
         public static IntPtr tolua_atpanic(IntPtr L, LuaCSFunction func)
         {
-            IntPtr fn = Marshal.GetFunctionPointerForDelegate(func);
+            IntPtr fn = Marshal.GetFunctionPointerForDelegate(func); HoldCsFunc(fn, func);
             return lua_atpanic(L, fn);
         }
 
@@ -1278,12 +1303,12 @@ namespace LuaInterface
 
             if (get != null)
             {
-                pGet = Marshal.GetFunctionPointerForDelegate(get);
+                pGet = Marshal.GetFunctionPointerForDelegate(get); HoldCsFunc(pGet, get);
             }
 
             if (set != null)
             {
-                pSet = Marshal.GetFunctionPointerForDelegate(set);
+                pSet = Marshal.GetFunctionPointerForDelegate(set); HoldCsFunc(pSet, set);
             }
 
             tolua_regthis(L, pGet, pSet);

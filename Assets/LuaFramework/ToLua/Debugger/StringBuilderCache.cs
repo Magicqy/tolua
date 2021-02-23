@@ -21,7 +21,7 @@ namespace LuaInterface
         }
 
         [ThreadStatic]
-        static StringBuilder _cache = new StringBuilder(256);
+        private static StringBuilder _cache;
         private const int MAX_BUILDER_SIZE = 512;
 
         public static StringBuilder Acquire(int capacity = 256)

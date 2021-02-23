@@ -56,7 +56,7 @@ namespace LuaInterface
 #if !USE_LUA_STANDALONE
         protected Dictionary<string, AssetBundle> zipMap = new Dictionary<string, AssetBundle>();
 #endif
-
+        [System.ThreadStatic]
         protected static LuaFileUtils instance = null;
 
         public LuaFileUtils()
@@ -201,9 +201,9 @@ namespace LuaInterface
                 fileName = fileName.Substring(0, fileName.Length - 4);
             }
 
-            using (CString.Block())
+            var sb = StringBuilderCache.Acquire(512);
+            try
             {
-                CString sb = CString.Alloc(512);
 
                 for (int i = 0; i < searchPaths.Count; i++)
                 {
@@ -231,6 +231,10 @@ namespace LuaInterface
 
                 return sb.ToString();
             }
+            finally
+            {
+                StringBuilderCache.Release(sb); sb = null;
+            }
         }
 
 #if !USE_LUA_STANDALONE
@@ -240,16 +244,16 @@ namespace LuaInterface
             byte[] buffer = null;
             string zipName = null;
 
-            using (CString.Block())
+            var sb = StringBuilderCache.Acquire();
+            try
             {
-                CString sb = CString.Alloc(256);
                 sb.Append("lua");
                 int pos = fileName.LastIndexOf('/');
 
                 if (pos > 0)
                 {
                     sb.Append("_");
-                    sb.Append(fileName, 0, pos).ToLower().Replace('/', '_');
+                    sb.Append(fileName, 0, pos).Replace('/', '_');
                     fileName = fileName.Substring(pos + 1);
                 }
 
@@ -263,6 +267,10 @@ namespace LuaInterface
 #endif
                 zipName = sb.ToString();
                 zipMap.TryGetValue(zipName, out zipFile);
+            }
+            finally
+            {
+                StringBuilderCache.Release(sb); sb = null;
             }
 
             if (zipFile != null)

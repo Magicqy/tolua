@@ -154,9 +154,9 @@ namespace LuaInterface
             {
                 int n = LuaDLL.lua_gettop(L);   
                              
-                using (CString.Block())
+                var sb = StringBuilderCache.Acquire();
+                try
                 {
-                    CString sb = CString.Alloc(256);
 #if UNITY_EDITOR
                     int line = LuaDLL.tolua_where(L, 1);
                     string filename = LuaDLL.lua_tostring(L, -1);
@@ -205,6 +205,10 @@ namespace LuaInterface
                     }
 
                     Debugger.Log(sb.ToString());            //203行与_line一致
+                }
+                finally
+                {
+                    StringBuilderCache.Release(sb); sb = null;
                 }
                 return 0;
             }

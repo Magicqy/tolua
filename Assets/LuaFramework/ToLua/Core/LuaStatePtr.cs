@@ -425,7 +425,7 @@ namespace LuaInterface
 
         public void LuaPushFunction(LuaCSFunction func)
         {
-            IntPtr fn = Marshal.GetFunctionPointerForDelegate(func);
+            IntPtr fn = Marshal.GetFunctionPointerForDelegate(func); LuaDLL.HoldCsFunc(fn, func);
             LuaDLL.lua_pushcclosure(L, fn, 0);
         }
 

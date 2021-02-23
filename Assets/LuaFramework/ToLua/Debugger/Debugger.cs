@@ -1,5 +1,4 @@
-﻿#if USE_LUA_STANDALONE
-namespace LuaInterface
+﻿namespace LuaInterface
 {
     public static class Debugger
     {
@@ -29,9 +28,122 @@ namespace LuaInterface
             void ILogHandler.LogMessage(LogType logType, string format, params object[] args) { }
         }
 
+#if USE_LUA_STANDALONE
+        private class DefaultLogHandler : ILogHandler
+        {
+            void ILogHandler.LogMessage(LogType logType, object arg0)
+            {
+                System.Console.WriteLine(arg0);
+            }
+
+            void ILogHandler.LogMessage(LogType logType, string format, object arg0)
+            {
+                System.Console.WriteLine(format, arg0);
+            }
+
+            void ILogHandler.LogMessage(LogType logType, string format, object arg0, object arg1)
+            {
+                System.Console.WriteLine(format, arg0, arg1);
+            }
+
+            void ILogHandler.LogMessage(LogType logType, string format, object arg0, object arg1, object arg2)
+            {
+                System.Console.WriteLine(format, arg0, arg1, arg2);
+            }
+
+            void ILogHandler.LogMessage(LogType logType, string format, params object[] args)
+            {
+                System.Console.WriteLine(format, args);
+            }
+        }
+#else
+        private class DefaultLogHandler : ILogHandler
+        {
+            void ILogHandler.LogMessage(LogType logType, object arg0)
+            {
+                switch (logType)
+                {
+                    case LogType.Log:
+                        UnityEngine.Debug.Log(arg0); break;
+                    case LogType.Warning:
+                        UnityEngine.Debug.LogWarning(arg0); break;
+                    case LogType.Error:
+                        UnityEngine.Debug.LogError(arg0); break;
+                    case LogType.Exception:
+                        UnityEngine.Debug.LogError(arg0); break;
+                }
+            }
+
+            void ILogHandler.LogMessage(LogType logType, string format, object arg0)
+            {
+                switch (logType)
+                {
+                    case LogType.Log:
+                        UnityEngine.Debug.LogFormat(format, arg0); break;
+                    case LogType.Warning:
+                        UnityEngine.Debug.LogWarningFormat(format, arg0); break;
+                    case LogType.Error:
+                        UnityEngine.Debug.LogErrorFormat(format, arg0); break;
+                    case LogType.Exception:
+                        UnityEngine.Debug.LogErrorFormat(format, arg0); break;
+                }
+            }
+
+            void ILogHandler.LogMessage(LogType logType, string format, object arg0, object arg1)
+            {
+                switch (logType)
+                {
+                    case LogType.Log:
+                        UnityEngine.Debug.LogFormat(format, arg0, arg1); break;
+                    case LogType.Warning:
+                        UnityEngine.Debug.LogWarningFormat(format, arg0, arg1); break;
+                    case LogType.Error:
+                        UnityEngine.Debug.LogErrorFormat(format, arg0, arg1); break;
+                    case LogType.Exception:
+                        UnityEngine.Debug.LogErrorFormat(format, arg0, arg1); break;
+                }
+            }
+
+            void ILogHandler.LogMessage(LogType logType, string format, object arg0, object arg1, object arg2)
+            {
+                switch (logType)
+                {
+                    case LogType.Log:
+                        UnityEngine.Debug.LogFormat(format, arg0, arg1, arg2); break;
+                    case LogType.Warning:
+                        UnityEngine.Debug.LogWarningFormat(format, arg0, arg1, arg2); break;
+                    case LogType.Error:
+                        UnityEngine.Debug.LogErrorFormat(format, arg0, arg1, arg2); break;
+                    case LogType.Exception:
+                        UnityEngine.Debug.LogErrorFormat(format, arg0, arg1, arg2); break;
+                }
+            }
+
+            void ILogHandler.LogMessage(LogType logType, string format, params object[] args)
+            {
+                switch (logType)
+                {
+                    case LogType.Log:
+                        UnityEngine.Debug.LogFormat(format, args); break;
+                    case LogType.Warning:
+                        UnityEngine.Debug.LogWarningFormat(format, args); break;
+                    case LogType.Error:
+                        UnityEngine.Debug.LogErrorFormat(format, args); break;
+                    case LogType.Exception:
+                        UnityEngine.Debug.LogErrorFormat(format, args); break;
+                }
+            }
+        }
+#endif
+
         private static DummyLogHandler dummyLogHandler = new DummyLogHandler();
         private static ILogHandler currLogHandler = dummyLogHandler;
         private static ILogHandler customLogHandler;
+
+        static Debugger()
+        {
+            customLogHandler = new DefaultLogHandler();
+        }
 
         public static void SetCustomLogHandler(ILogHandler handler)
         {
@@ -66,244 +178,3 @@ namespace LuaInterface
         public static void LogException(string message, System.Exception e) { currLogHandler.LogMessage(LogType.Exception, "{0} {1}", message, e); }
     }
 }
-#else
-using UnityEngine;
-using System;
-using System.Text;
-
-namespace LuaInterface
-{
-    public interface ILogger
-    {
-        void Log(string msg, string stack, LogType type);
-    }
-
-    public static class Debugger
-    {
-        public static bool useLog = true;
-        public static string threadStack = string.Empty;
-        public static ILogger logger = null;
-
-        private static CString sb = new CString(256);
-
-        static Debugger()
-        {
-            for (int i = 24; i < 70; i++)
-            {
-                StringPool.PreAlloc(i, 2);
-            }
-        }
-
-        //减少gc alloc
-        static string GetLogFormat(string str)
-        {
-            DateTime time = DateTime.Now;
-            //StringBuilder sb = StringBuilderCache.Acquire();
-
-            //sb.Append(ConstStringTable.GetTimeIntern(time.Hour))
-            //    .Append(":")
-            //    .Append(ConstStringTable.GetTimeIntern(time.Minute))
-            //    .Append(":")
-            //    .Append(ConstStringTable.GetTimeIntern(time.Second))
-            //    .Append(".")
-            //    .Append(time.Millisecond)
-            //    .Append("-")
-            //    .Append(Time.frameCount % 999)
-            //    .Append(": ")
-            //    .Append(str);
-
-            //return StringBuilderCache.GetStringAndRelease(sb);
-
-            sb.Clear();
-            sb.Append(ConstStringTable.GetTimeIntern(time.Hour))
-                .Append(":")
-                .Append(ConstStringTable.GetTimeIntern(time.Minute))
-                .Append(":")
-                .Append(ConstStringTable.GetTimeIntern(time.Second))
-                .Append(".")
-                .Append(time.Millisecond)
-                .Append("-")
-                .Append(Time.frameCount % 999)
-                .Append(": ")
-                .Append(str);
-
-            String dest = StringPool.Alloc(sb.Length);                        
-            sb.CopyToString(dest);
-            return dest;
-        }
-
-        public static void Log(string str)
-        {
-            str = GetLogFormat(str);            
-
-            if (useLog)
-            {
-                Debug.Log(str);
-            }
-            else if (logger != null)
-            {
-                //普通log节省一点记录堆栈性能和避免调用手机系统log函数
-                logger.Log(str, string.Empty, LogType.Log);
-            }
-
-            StringPool.Collect(str);
-        }
-
-        public static void Log(object message)
-        {
-            Log(message.ToString());
-        }
-
-        public static void Log(string str, object arg0)
-        {
-            string s = string.Format(str, arg0);
-            Log(s);
-        }
-
-        public static void Log(string str, object arg0, object arg1)
-        {
-            string s = string.Format(str, arg0, arg1);
-            Log(s);
-        }
-
-        public static void Log(string str, object arg0, object arg1, object arg2)
-        {
-            string s = string.Format(str, arg0, arg1, arg2);
-            Log(s);
-        }
-
-        public static void Log(string str, params object[] param)
-        {
-            string s = string.Format(str, param);
-            Log(s);
-        }
-
-        public static void LogWarning(string str)
-        {
-            str = GetLogFormat(str);            
-
-            if (useLog)
-            {
-                Debug.LogWarning(str);
-            }
-            else if (logger != null)
-            {
-                string stack = StackTraceUtility.ExtractStackTrace();
-                logger.Log(str, stack, LogType.Warning);
-            }
-
-            StringPool.Collect(str);
-        }
-
-        public static void LogWarning(object message)
-        {
-            LogWarning(message.ToString());
-        }
-
-        public static void LogWarning(string str, object arg0)
-        {
-            string s = string.Format(str, arg0);
-            LogWarning(s);
-        }
-
-        public static void LogWarning(string str, object arg0, object arg1)
-        {
-            string s = string.Format(str, arg0, arg1);
-            LogWarning(s);
-        }
-
-        public static void LogWarning(string str, object arg0, object arg1, object arg2)
-        {
-            string s = string.Format(str, arg0, arg1, arg2);
-            LogWarning(s);
-        }
-
-        public static void LogWarning(string str, params object[] param)
-        {
-            string s = string.Format(str, param);
-            LogWarning(s);
-        }
-
-        public static void LogError(string str)
-        {
-            str = GetLogFormat(str);            
-
-            if (useLog)
-            {
-                Debug.LogError(str);
-            }
-            else if (logger != null)
-            {
-                string stack = StackTraceUtility.ExtractStackTrace();
-                logger.Log(str, stack, LogType.Error);
-            }
-
-            StringPool.Collect(str);
-        }
-
-        public static void LogError(object message)
-        {
-            LogError(message.ToString());
-        }
-
-        public static void LogError(string str, object arg0)
-        {
-            string s = string.Format(str, arg0);
-            LogError(s);
-        }
-
-        public static void LogError(string str, object arg0, object arg1)
-        {
-            string s = string.Format(str, arg0, arg1);
-            LogError(s);
-        }
-
-        public static void LogError(string str, object arg0, object arg1, object arg2)
-        {
-            string s = string.Format(str, arg0, arg1, arg2);
-            LogError(s);
-        }
-
-        public static void LogError(string str, params object[] param)
-        {
-            string s = string.Format(str, param);
-            LogError(s);
-        }
-
-
-        public static void LogException(Exception e)
-        {
-            threadStack = e.StackTrace;            
-            string str = GetLogFormat(e.Message);            
-
-            if (useLog)
-            {
-                Debug.LogError(str);
-            }
-            else if (logger != null)
-            {
-                logger.Log(str, threadStack, LogType.Exception);
-            }
-
-            StringPool.Collect(str);
-        }
-
-        public static void LogException(string str, Exception e)
-        {
-            threadStack = e.StackTrace;            
-            str = GetLogFormat(str + e.Message);            
-
-            if (useLog)
-            {
-                Debug.LogError(str);
-            }
-            else if (logger != null)
-            {
-                logger.Log(str, threadStack, LogType.Exception);
-            }
-
-            StringPool.Collect(str);
-        }
-    }
-}
-#endif

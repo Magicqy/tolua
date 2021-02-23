@@ -85,9 +85,14 @@ namespace LuaInterface
         HashSet<Type> genericSet = new HashSet<Type>();
         HashSet<string> moduleSet = null;
 
+        [ThreadStatic]
         private static LuaState mainState = null;
+        [ThreadStatic]
         private static LuaState injectionState = null;
+#if MULTI_STATE
+        [ThreadStatic]
         private static Dictionary<IntPtr, LuaState> stateMap = new Dictionary<IntPtr, LuaState>();
+#endif
 
         private int beginCount = 0;
         private bool beLogGC = false;
@@ -102,6 +107,7 @@ namespace LuaInterface
 
         public LuaState()            
         {
+            LuaDLL.OpenCsFuncHolder();
             if (mainState == null)
             {
                 mainState = this;
@@ -116,7 +122,9 @@ namespace LuaInterface
             InitStackTraits();
             L = LuaNewState();            
             LuaException.Init(L);
+#if MULTI_STATE
             stateMap.Add(L, this);                        
+#endif
             OpenToLuaLibs();            
             ToLua.OpenLibs(L);
             OpenBaseLibs();
@@ -506,7 +514,7 @@ namespace LuaInterface
 
         public void RegFunction(string name, LuaCSFunction func)
         {
-            IntPtr fn = Marshal.GetFunctionPointerForDelegate(func);
+            IntPtr fn = Marshal.GetFunctionPointerForDelegate(func); LuaDLL.HoldCsFunc(fn, func);
             LuaDLL.tolua_function(L, name, fn);            
         }
 
@@ -517,12 +525,12 @@ namespace LuaInterface
 
             if (get != null)
             {
-                fget = Marshal.GetFunctionPointerForDelegate(get);
+                fget = Marshal.GetFunctionPointerForDelegate(get); LuaDLL.HoldCsFunc(fget, get);
             }
 
             if (set != null)
             {
-                fset = Marshal.GetFunctionPointerForDelegate(set);
+                fset = Marshal.GetFunctionPointerForDelegate(set); LuaDLL.HoldCsFunc(fset, set);
             }
 
             LuaDLL.tolua_variable(L, name, fget, fset);
@@ -720,9 +728,9 @@ namespace LuaInterface
 
         string ToPackagePath(string path)
         {
-            using (CString.Block())
+            var sb = StringBuilderCache.Acquire();
+            try
             {
-                CString sb = CString.Alloc(256);
                 sb.Append(path);
                 sb.Replace('\\', '/');
 
@@ -733,6 +741,10 @@ namespace LuaInterface
 
                 sb.Append("?.lua");
                 return sb.ToString();
+            }
+            finally
+            {
+                StringBuilderCache.Release(sb); sb = null;
             }
         }
 
@@ -2028,7 +2040,9 @@ namespace LuaInterface
                 genericSet.Clear();                                
                 LuaDLL.lua_close(L);                
                 translator.Dispose();
+#if MULTI_STATE
                 stateMap.Remove(L);
+#endif
                 translator = null;
                 L = IntPtr.Zero;
 #if MISS_WARNING
@@ -2054,6 +2068,7 @@ namespace LuaInterface
 
             LuaFileUtils.Instance.Dispose();
             System.GC.SuppressFinalize(this);            
+            LuaDLL.ReleaseCsFuncHolder();
         }
 
         //public virtual void Dispose(bool dispose)
